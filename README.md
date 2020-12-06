@@ -1,5 +1,8 @@
 # Arg-Rparentezco
 
+Paquetes utilizados: 
+- plyr, tidyverse, gmodels y ggthemes
+
 Ejercicio para determinar la cantidad de personas con condición de jefe y jefa de hogar en Argentina
 
 Se utiliza la base de microdatos del INDEC del primer trimestre del 2020.
