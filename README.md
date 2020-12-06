@@ -1,7 +1,10 @@
 # Arg-Rparentezco
 
 Paquetes utilizados: 
-- plyr, tidyverse, gmodels y ggthemes
+- plyr
+- tidyverse
+- gmodels
+- ggthemes
 
 Ejercicio para determinar la cantidad de personas con condición de jefe y jefa de hogar en Argentina
 
