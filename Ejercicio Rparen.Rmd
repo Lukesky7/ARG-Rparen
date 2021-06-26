@@ -20,44 +20,46 @@ library(ggthemes)
 ```{r Descarga y cargamos datos, seleccion variables de interés}
 download.file("https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/EPH_usu_1_Trim_2020_txt.zip","/Directorio/Nombrearchivo.zip")
 
-unzip ("/Directorio/Nombrearchivo.zip", overwrite = TRUE)              
+unzip ("/Directorio/Nombrearchivo.zip",
+       overwrite = TRUE)              
 
 
-EPH1T20 <- read.csv("usu_individual_T120.txt", sep = ";", header = TRUE, fill = TRUE)
+EPH1T20 <- read.csv("usu_individual_T120.txt",
+                    sep = ";",
+                    header = TRUE, fill = TRUE)
+
 EPH1T20 <- EPH1T20 %>% select( REGION, PONDERA, CH03, CH04, CH07 )
-EPH1T20R <- rename(EPH1T20, Sexo = CH04, RParentezco = CH03, Region = REGION,
-                   ECivil = CH07, Pondera = PONDERA)
+
+EPH1T20R <- rename(EPH1T20,
+                   Sexo = CH04, RParentezco = CH03,
+                   Region = REGION, ECivil = CH07,
+                   Pondera = PONDERA)
 ```
 
 
 
 ```{r Recodificar variables}
-EPH1T20R$Sexo <- factor(EPH1T20R$Sexo, levels = c(1,2), labels = c("Hombre",
-                                                 "Mujer"))
+EPH1T20R$Sexo <- factor(EPH1T20R$Sexo, levels = c(1,2),
+                        labels = c("Hombre","Mujer"))
 
-EPH1T20R$ECivil <- factor(EPH1T20R$ECivil, levels =c(1,2,3,4,5),labels=c("Unido/a",
-                                                                 "Casado/a",
-                                                                 "Separado/a o divorciado/a",
-                                                                 "Viudo/a","Soltero/a"))
+EPH1T20R$ECivil <- factor(EPH1T20R$ECivil,levels =c(1,2,3,4,5),
+                          labels=c("Unido/a","Casado/a",
+                                   "Separado/a o divorciado/a",
+                                   "Viudo/a","Soltero/a"))
 
-EPH1T20R$RParentezco <- factor(EPH1T20R$RParentezco, levels = c(1,2,3,4,5,6,7,8,9,10),
-                 labels = c("Jefe/a",
-                            "Conyuge/Pareja",
-                            "Hijo/a/stra",
-                            "Yerno/a",
-                            "Nieto/a",
-                            "Madre/Padre",
-                            "Suegro/a",
-                            "Hermano/a",
-                            "Otros familiares",
-                            "No familiares"))
+EPH1T20R$RParentezco <- factor(EPH1T20R$RParentezco,
+                               levels = c(1,2,3,4,5,6,7,8,9,10),
+                               labels = c("Jefe/a","Conyuge/Pareja",
+                                          "Hijo/a/stra","Yerno/a",
+                                          "Nieto/a","Madre/Padre",
+                                          "Suegro/a","Hermano/a",
+                                          "Otros familiares","No familiares"))
 
-EPH1T20R$Region <- factor(EPH1T20R$Region, levels = c(1,40,41,42,43,44),labels = c("Gran Bs As",
-                                                                 "Noroeste",
-                                                                 "Nordeste",
-                                                                 "Cuyo",
-                                                                 "Pampeana",
-                                                                 "Patagonica"))
+EPH1T20R$Region <- factor(EPH1T20R$Region,
+                          levels = c(1,40,41,42,43,44),
+                          labels = c("Gran Bs As","Noroeste",
+                                     "Nordeste","Cuyo",
+                                     "Pampeana","Patagonica"))
 ```
 
 
@@ -76,18 +78,14 @@ CrossTable(JefYPar$RParentezco,JefYPar$Sexo, digits=2, prop.r=TRUE, prop.c=TRUE,
 
 JefYPar %>% ggplot(aes( Sexo, fill = RParentezco))+
   geom_bar(position = "fill", width = 0.7)+
-ggtitle(" Hombres y mujeres en %")+
+  ggtitle(" Hombres y mujeres en %")+
   labs(x = "Sexo", y = " porcentaje ",
        subtitle = "EPH 1er trimestre 2020",
        caption = "Fuente: Elaboración propia con datos del INDEC")+
-  annotate(geom="text", x=as.factor("Hombre"), y=0.50, 
-             label="81%")+
-  annotate(geom="text", x=as.factor("Hombre"), y=0.10, 
-             label="19%")+
-  annotate(geom="text", x=as.factor("Mujer"), y=0.75, 
-             label="52%")+
-  annotate(geom="text", x=as.factor("Mujer"), y=0.30, 
-             label="48%")+
+  annotate(geom="text", x=as.factor("Hombre"), y = 0.50, label="81%")+
+  annotate(geom="text", x=as.factor("Hombre"), y = 0.10, label="19%")+
+  annotate(geom="text", x=as.factor("Mujer"), y = 0.75, label="52%")+
+  annotate(geom="text", x=as.factor("Mujer"), y = 0.30, label="48%")+
   scale_color_economist()+
   theme_calc(base_size = 15)
 ```
@@ -98,8 +96,8 @@ ggtitle(" Hombres y mujeres en %")+
 
 ```{r Filtro mujeres y análisis mujeres}
 Mujeres <- JefYPar %>% filter( Sexo %in% c("Mujer"))
-CrossTable(Mujeres$RParen,Mujeres$ECivil,max.width = 3, digits=2, prop.r=TRUE, prop.c=TRUE,
-           prop.t=TRUE, prop.chisq=FALSE)
+CrossTable(Mujeres$RParen,Mujeres$ECivil,max.width = 3, digits=2,
+           prop.r=TRUE, prop.c=TRUE,prop.t=TRUE, prop.chisq=FALSE)
 ```
 
 
@@ -108,19 +106,15 @@ CrossTable(Mujeres$RParen,Mujeres$ECivil,max.width = 3, digits=2, prop.r=TRUE, p
 ```{r Gráfico mujeres estado civil y rel de parentezco}
 Mujeres %>% ggplot(aes( ECivil, fill = RParentezco))+
   geom_bar(position = "fill", width = 0.7)+
-ggtitle(" Mujeres - Estado civil y relación de parentezco")+
+  ggtitle(" Mujeres - Estado civil y relación de parentezco")+
   labs(x = "Estado civil", y = " Jefas y conyuges ",
        subtitle = "EPH 1er trimestre 2020",
        caption = "Fuente: Elaboración propia con datos del INDEC")+
-  annotate(geom="text", x=as.factor("Unido/a"), y=0.50, 
-             label="68%")+
-  annotate(geom="text", x=as.factor("Unido/a"), y=0.85, 
-             label="32%")+
-  annotate(geom="text", x=as.factor("Casado/a"), y=0.90, 
-             label="20%")+
-  annotate(geom="text", x=as.factor("Casado/a"), y=0.60, 
-             label="80%")+
-   scale_color_economist()+
+  annotate(geom = "text", x = as.factor("Unido/a"), y = 0.50, label = "68%")+
+  annotate(geom = "text", x = as.factor("Unido/a"), y = 0.85, label = "32%")+
+  annotate(geom = "text", x = as.factor("Casado/a"), y = 0.90, label = "20%")+
+  annotate(geom = "text", x = as.factor("Casado/a"), y = 0.60, label = "80%")+
+  scale_color_economist()+
   theme_calc()
 
 ```
@@ -130,8 +124,9 @@ ggtitle(" Mujeres - Estado civil y relación de parentezco")+
 ```{r Mujeres facetas por Region, se observa lo mismo}
 Mujeres %>% ggplot(aes( ECivil, fill = RParentezco))+
   geom_bar(position = "fill", width = 0.3)+
-ggtitle(" Mujeres - Estado civil y relación de parentezco")+
-  labs(x = "Estado civil", y = " Jefas y conyuges ",
+  ggtitle(" Mujeres - Estado civil y relación de parentezco")+
+  labs(x = "Estado civil",
+       y = " Jefas y conyuges ",
        caption = "Fuente: Elaboración propia con datos del INDEC")+
   theme_excel_new()+
   scale_color_economist()+
