@@ -6,7 +6,7 @@ Paquetes utilizados:
 - gmodels
 - ggthemes
 
-Ejercicio para determinar la cantidad de personas con condición de jefe y jefa de hogar en Argentina
+Es una demo, práctica y sencilla para practicar como descargar un archivo, seleccionar variables, recodificarlas y deplegar una mini análisis con tablas y gráficas simples.
 
 Se utiliza la base de microdatos del INDEC del primer trimestre del 2020.
 https://www.indec.gob.ar/indec/web/Institucional-Indec-BasesDeDatos
