@@ -2,6 +2,7 @@
 
 Paquetes utilizados: 
 - plyr
+- dplyr
 - tidyverse
 - gmodels
 - ggthemes
