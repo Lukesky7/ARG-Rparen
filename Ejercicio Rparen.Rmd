@@ -6,8 +6,9 @@ output: html_document
 ---
 
 
-```{r}
+```{r Paquetes}
 library(plyr)
+library(dplyr)
 library(tidyverse)
 library(gmodels)
 library(ggthemes)
@@ -16,27 +17,30 @@ library(ggthemes)
 
 
 
-```{r Cargamos datos, seleccion variables}
+```{r Descarga y cargamos datos, seleccion variables de interés}
+download.file("https://www.indec.gob.ar/ftp/cuadros/menusuperior/eph/EPH_usu_1_Trim_2020_txt.zip","/Directorio/Nombrearchivo.zip")
+
+unzip ("/Directorio/Nombrearchivo.zip", overwrite = TRUE)              
+
+
 EPH1T20 <- read.csv("usu_individual_T120.txt", sep = ";", header = TRUE, fill = TRUE)
 EPH1T20 <- EPH1T20 %>% select( REGION, PONDERA, CH03, CH04, CH07 )
-Sexo <- EPH1T20$CH04
-RParen <- EPH1T20$CH03
-Region <- EPH1T20$REGION
-ECivil <- EPH1T20$CH07
-Pondera <- EPH1T20$PONDERA
-
+EPH1T20R <- rename(EPH1T20, Sexo = CH04, RParentezco = CH03, Region = REGION,
+                   ECivil = CH07, Pondera = PONDERA)
 ```
 
+
+
 ```{r Recodificar variables}
-Sexo <- factor(Sexo, levels = c(1,2), labels = c("Hombre",
+EPH1T20R$Sexo <- factor(EPH1T20R$Sexo, levels = c(1,2), labels = c("Hombre",
                                                  "Mujer"))
 
-ECivil <- factor(ECivil, levels =c(1,2,3,4,5),labels=c("Unido/a",
+EPH1T20R$ECivil <- factor(EPH1T20R$ECivil, levels =c(1,2,3,4,5),labels=c("Unido/a",
                                                                  "Casado/a",
                                                                  "Separado/a o divorciado/a",
                                                                  "Viudo/a","Soltero/a"))
 
-RParen <- factor(RParen, levels = c(1,2,3,4,5,6,7,8,9,10),
+EPH1T20R$RParentezco <- factor(EPH1T20R$RParentezco, levels = c(1,2,3,4,5,6,7,8,9,10),
                  labels = c("Jefe/a",
                             "Conyuge/Pareja",
                             "Hijo/a/stra",
@@ -48,36 +52,29 @@ RParen <- factor(RParen, levels = c(1,2,3,4,5,6,7,8,9,10),
                             "Otros familiares",
                             "No familiares"))
 
-Region <- factor(Region, levels = c(1,40,41,42,43,44),labels = c("Gran Bs As",
+EPH1T20R$Region <- factor(EPH1T20R$Region, levels = c(1,40,41,42,43,44),labels = c("Gran Bs As",
                                                                  "Noroeste",
                                                                  "Nordeste",
                                                                  "Cuyo",
                                                                  "Pampeana",
                                                                  "Patagonica"))
-
-EPH1T20Rec <- data.frame(Sexo, RParen, ECivil, Region, Pondera)
 ```
 
 
 
-```{r Seleccionamos solo quienes son jefes, jefas y parejas}
-JyP <- EPH1T20Rec %>% filter( RParen %in% c("Jefe/a", "Conyuge/Pareja"))
-```
+```{r Filtramos quienes son jefes, jefas y parejas y pedimos tabla}
+JefYPar <- EPH1T20R %>% filter( RParentezco %in% c("Jefe/a", "Conyuge/Pareja"))
 
-
-#Tabla frecuencias y porcentajes
-
-```{r Tabla Relacion de parentezco por genero}
-CrossTable(JyP$RParen,JyP$Sexo, digits=2, prop.r=TRUE, prop.c=TRUE,
+CrossTable(JefYPar$RParentezco,JefYPar$Sexo, digits=2, prop.r=TRUE, prop.c=TRUE,
            prop.t=TRUE, prop.chisq=FALSE)
 ```
 
 
 ##Grafica
 
-```{r Gráfica simple relacion de parentezco}
+```{r Gráfica simple relación de parentezco}
 
-JyP %>% ggplot(aes( Sexo, fill = RParen))+
+JefYPar %>% ggplot(aes( Sexo, fill = RParentezco))+
   geom_bar(position = "fill", width = 0.7)+
 ggtitle(" Hombres y mujeres en %")+
   labs(x = "Sexo", y = " porcentaje ",
@@ -92,29 +89,24 @@ ggtitle(" Hombres y mujeres en %")+
   annotate(geom="text", x=as.factor("Mujer"), y=0.30, 
              label="48%")+
   scale_color_economist()+
-  theme_calc(base_size = 20)
-  
+  theme_calc(base_size = 15)
 ```
 
 
-##Ahora queremos profundizar en que pasa si filtramos solo mujeres y preguntamos si son jefas o parejas dependiendo de su estado civil ??
+##Ahora nos interesa solo en relación a mujeres y queremos saber: ¿ Exiten indicios que puedan dar a entender que hay relación respecto a si son jefas o pareja dependiendo de su estado civil ?
 
 
-```{r Filtro mujeres}
-Mujeres <- JyP %>% filter( Sexo %in% c("Mujer"))
-
-```
-
-## Porcentajes, frecuencias
-
-```{r Tabla mujeres y estado civil}
+```{r Filtro mujeres y análisis mujeres}
+Mujeres <- JefYPar %>% filter( Sexo %in% c("Mujer"))
 CrossTable(Mujeres$RParen,Mujeres$ECivil,max.width = 3, digits=2, prop.r=TRUE, prop.c=TRUE,
            prop.t=TRUE, prop.chisq=FALSE)
 ```
 
 
+
+
 ```{r Gráfico mujeres estado civil y rel de parentezco}
-Mujeres %>% ggplot(aes( ECivil, fill = RParen))+
+Mujeres %>% ggplot(aes( ECivil, fill = RParentezco))+
   geom_bar(position = "fill", width = 0.7)+
 ggtitle(" Mujeres - Estado civil y relación de parentezco")+
   labs(x = "Estado civil", y = " Jefas y conyuges ",
@@ -133,8 +125,10 @@ ggtitle(" Mujeres - Estado civil y relación de parentezco")+
 
 ```
 
+
+
 ```{r Mujeres facetas por Region, se observa lo mismo}
-Mujeres %>% ggplot(aes( ECivil, fill = RParen))+
+Mujeres %>% ggplot(aes( ECivil, fill = RParentezco))+
   geom_bar(position = "fill", width = 0.3)+
 ggtitle(" Mujeres - Estado civil y relación de parentezco")+
   labs(x = "Estado civil", y = " Jefas y conyuges ",
